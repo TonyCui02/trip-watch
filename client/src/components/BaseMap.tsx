@@ -1,5 +1,5 @@
-import { MapboxOverlay } from "@deck.gl/mapbox/typed";
-import { ScenegraphLayer } from "@deck.gl/mesh-layers";
+import { MapboxOverlay, MapboxOverlayProps } from "@deck.gl/mapbox/typed";
+import { ScenegraphLayer } from "@deck.gl/mesh-layers/typed";
 import { Map, NavigationControl, useControl } from "react-map-gl";
 
 // Set your mapbox access token here
@@ -17,13 +17,13 @@ const INITIAL_VIEW_STATE = {
   bearing: 0,
 };
 
-export function DeckGLOverlay(props) {
+export function DeckGLOverlay(props: MapboxOverlayProps) {
   const overlay = useControl(() => new MapboxOverlay(props));
   overlay.setProps(props);
   return null;
 }
 
-export default function BaseMap({ data }) {
+export default function BaseMap() {
   const layers = [
     new ScenegraphLayer({
       id: "ScenegraphLayer",
@@ -71,7 +71,6 @@ export default function BaseMap({ data }) {
         mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
         style={{ width: "100vw", height: "100%" }}
         reuseMaps
-        preventStyleDiffing={true}
       >
         <DeckGLOverlay layers={layers} />
         <NavigationControl />

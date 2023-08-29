@@ -1,9 +1,15 @@
+import { Server } from "socket.io";
+
+const getClientCount = (io: Server) => {
+  const count = io.engine.clientsCount;
+  return count;
+}
+
 // socketHandler.ts
-const socketHandler = (io) => {
+const socketHandler = (io: Server) => {
   io.on("connection", (socket) => {
     console.log(`user connected: ${socket.id}`);
-
-    console.log(socket.client.conn.server.clientsCount + " users connected");
+    console.log(getClientCount(io) + " users connected");
 
     socket.on("join_room", (data) => {
       socket.join(data);
@@ -15,7 +21,7 @@ const socketHandler = (io) => {
 
     socket.on("disconnect", function () {
       console.log(`user disconnected: ${socket.id}`);
-      console.log(socket.client.conn.server.clientsCount + " users connected");
+      console.log(getClientCount(io) + " users connected");
     });
   });
 };

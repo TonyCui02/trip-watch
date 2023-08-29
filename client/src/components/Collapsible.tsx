@@ -3,7 +3,11 @@ import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 
-function Collapsible(props) {
+interface CollapsibleProps {
+  children: React.ReactNode;
+}
+
+function Collapsible(props: CollapsibleProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleOpen = () => {

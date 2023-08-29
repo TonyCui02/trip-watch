@@ -27,11 +27,29 @@ const io = new Server(server, {
   },
 });
 
+// let realtimeUpdateInterval;
+
 server.listen(port, async () => {
   try {
+    console.log(`Trip Watch Server listening on port ${port}`);
     await dbClient();
     socketHandler(io);
+    // await checkForRealtimeUpdates();
+    // realtimeUpdateInterval = setInterval(
+    //   () => checkForRealtimeUpdates(),
+    //   10 * 1000
+    // );
   } catch (error) {
     console.error(error);
   }
+});
+
+server.on("close", function () {
+  console.log("Stopping server...");
+  console.log("Clearing interval for real time updates...");
+  // clearInterval(realtimeUpdateInterval);
+});
+
+process.on("SIGINT", function () {
+  server.close();
 });
