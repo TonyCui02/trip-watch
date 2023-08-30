@@ -31,29 +31,14 @@ export default function MapPage() {
               setRoom(e.target.value);
             }}
           />
-          {/* <button
-            className="bg-purple-200 hover:bg-purple-300 text-neutral-800 font-bold py-2 px-4 rounded mr-2 text-sm"
-            onClick={joinRoom}
-          >
-            Join Room
-          </button>
-          <input
-            placeholder="Message..."
-            onChange={(e) => {
-              setMessage(e.target.value);
-            }}
-          /> */}
           <button
             className="bg-purple-200 hover:bg-purple-300 text-neutral-800 font-bold py-2 px-4 rounded mr-2 text-sm"
-            // onClick={sendMessage}
           >
             Send Message
           </button>
-          <h1>Message received: </h1>
-          {/* <p>{messagesReceived}</p> */}
         </div>
       </Collapsible>
-      <BaseMap data={data || undefined} />
+      <BaseMap busLocationsData={data || undefined} />
     </>
   );
 }
