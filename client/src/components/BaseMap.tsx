@@ -9,13 +9,17 @@ const MAP_STYLE =
 
 // Viewport settings
 const INITIAL_VIEW_STATE = {
-  longitude: -122.4,
-  latitude: 37.74,
+  longitude: 174.6280145,
+  latitude: -36.9078338,
   zoom: 11,
   maxZoom: 20,
   pitch: 30,
   bearing: 0,
 };
+
+interface BaseMapProps {
+  data?: [];
+}
 
 export function DeckGLOverlay(props: MapboxOverlayProps) {
   const overlay = useControl(() => new MapboxOverlay(props));
@@ -23,22 +27,22 @@ export function DeckGLOverlay(props: MapboxOverlayProps) {
   return null;
 }
 
-export default function BaseMap() {
+export default function BaseMap(props: BaseMapProps) {
   const layers = [
     new ScenegraphLayer({
       id: "ScenegraphLayer",
-      data: "https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/bart-stations.json",
+      data: props.data,
 
       /* props from ScenegraphLayer class */
 
-      _animations: {
-        "*": { speed: 5 },
-      },
+      // _animations: {
+      //   "*": { speed: 5 },
+      // },
       _lighting: "pbr",
       // getAnimator: null,
       // getColor: [255, 255, 255, 255],
       getOrientation: (d) => [0, Math.random() * 180, 90],
-      getPosition: (d) => d.coordinates,
+      getPosition: (d) => [d.position.longitude, d.position.latitude],
       // getScale: [1, 1, 1],
       // getScene: null,
       // getTransformMatrix: [],
@@ -48,7 +52,7 @@ export default function BaseMap() {
         "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/BoxAnimated/glTF-Binary/BoxAnimated.glb",
       // sizeMaxPixels: Number.MAX_SAFE_INTEGER,
       // sizeMinPixels: 0,
-      sizeScale: 500,
+      sizeScale: 25,
 
       /* props inherited from Layer class */
 

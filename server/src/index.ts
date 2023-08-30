@@ -5,7 +5,9 @@ import { Server } from "socket.io";
 import dbClient from "./dbClient";
 
 import * as dotenv from "dotenv";
-import socketHandler from "./socketHandler";
+import SocketInstance from "./SocketManager";
+import { checkForRealtimeUpdates } from "./datasources/auckland/realtimePolling";
+import SocketManager from "./SocketManager";
 dotenv.config();
 
 // Setup Express
@@ -27,18 +29,22 @@ const io = new Server(server, {
   },
 });
 
-// let realtimeUpdateInterval;
+let realtimeUpdateInterval: string | number | NodeJS.Timeout;
 
 server.listen(port, async () => {
   try {
     console.log(`Trip Watch Server listening on port ${port}`);
     await dbClient();
-    socketHandler(io);
-    // await checkForRealtimeUpdates();
-    // realtimeUpdateInterval = setInterval(
-    //   () => checkForRealtimeUpdates(),
-    //   10 * 1000
-    // );
+
+    const socketManager = SocketManager.getInstance();
+
+    socketManager.initialize(io);
+    
+    await checkForRealtimeUpdates();
+    realtimeUpdateInterval = setInterval(
+      () => checkForRealtimeUpdates(),
+      10000
+    );
   } catch (error) {
     console.error(error);
   }
@@ -47,7 +53,7 @@ server.listen(port, async () => {
 server.on("close", function () {
   console.log("Stopping server...");
   console.log("Clearing interval for real time updates...");
-  // clearInterval(realtimeUpdateInterval);
+  clearInterval(realtimeUpdateInterval);
 });
 
 process.on("SIGINT", function () {
