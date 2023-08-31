@@ -5,10 +5,11 @@ import { Server } from "socket.io";
 import dbClient from "./dbClient";
 
 import * as dotenv from "dotenv";
-import SocketInstance from "./SocketManager";
-import { checkForRealtimeUpdates } from "./datasources/auckland/realtimePolling";
 import SocketManager from "./SocketManager";
+import { checkForRealtimeUpdates } from "./datasources/auckland/realtimePolling";
 dotenv.config();
+
+const POLLING_INTERVAL = parseInt(process.env.POLLING_INTERVAL) || 10000; // poll every 10 seconds if not specified in env
 
 // Setup Express
 const app = express();
@@ -39,11 +40,11 @@ server.listen(port, async () => {
     const socketManager = SocketManager.getInstance();
 
     socketManager.initialize(io);
-    
+
     await checkForRealtimeUpdates();
     realtimeUpdateInterval = setInterval(
       () => checkForRealtimeUpdates(),
-      10000
+      POLLING_INTERVAL
     );
   } catch (error) {
     console.error(error);

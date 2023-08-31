@@ -1,7 +1,9 @@
 import { MapboxOverlay, MapboxOverlayProps } from "@deck.gl/mapbox/typed";
 
-import { Map, NavigationControl, useControl } from "react-map-gl";
-import { BusLayer } from "../deckgl/layers/BusLayer";
+import { useState } from "react";
+import Map, { NavigationControl, useControl } from "react-map-gl";
+import { BusLayer } from "../layers/BusLayer";
+import MapImage from "./MapImage";
 
 // Set your mapbox access token here
 const MAPBOX_ACCESS_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
@@ -19,6 +21,10 @@ const INITIAL_VIEW_STATE = {
   maxPitch: 60,
 };
 
+const INITIAL_INFO = {
+  object: null,
+};
+
 interface BaseMapProps {
   busLocationsData?: [];
   trainLocationsData?: [];
@@ -32,19 +38,34 @@ export function DeckGLOverlay(props: MapboxOverlayProps) {
 }
 
 export default function BaseMap(props: BaseMapProps) {
-  const busLayer = BusLayer(props.busLocationsData);
+  const [hoverInfo, setHoverInfo] = useState(INITIAL_INFO as any);
+  const busLayer = BusLayer(props.busLocationsData, setHoverInfo);
   const layers = [busLayer];
+
   return (
     <div className="w-full h-screen">
       <Map
-        initialViewState={INITIAL_VIEW_STATE}
         mapStyle={MAP_STYLE}
         mapboxAccessToken={MAPBOX_ACCESS_TOKEN}
-        style={{ width: "100vw", height: "100%" }}
         reuseMaps
+        initialViewState={INITIAL_VIEW_STATE}
       >
+        <MapImage />
         <DeckGLOverlay layers={layers} />
         <NavigationControl />
+        {hoverInfo && (
+          <div
+            style={{
+              position: "absolute",
+              zIndex: 100,
+              pointerEvents: "none",
+              left: hoverInfo.x,
+              top: hoverInfo.y,
+            }}
+          >
+            {hoverInfo?.object?.trip?.route_id}
+          </div>
+        )}
       </Map>
     </div>
   );
