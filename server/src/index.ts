@@ -21,6 +21,10 @@ app.use(cors());
 // Setup body-parser
 app.use(express.json());
 
+// Setup our routes.
+import routes from "./routes";
+app.use("/", routes);
+
 const server = http.createServer(app);
 
 const io = new Server(server, {

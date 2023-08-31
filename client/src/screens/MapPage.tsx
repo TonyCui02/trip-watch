@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import BaseMap from "../components/BaseMap";
 import Collapsible from "../components/Collapsible";
-const socket = io("http://192.168.1.26:3000");
+import axios from "axios"
+
+const API_URL = import.meta.env.VITE_API_URL
+
+const socket = io(API_URL);
 
 export default function MapPage() {
   const [data, setData] = useState(null);
@@ -19,6 +23,23 @@ export default function MapPage() {
       setData(data);
     });
   }, [socket]);
+
+  // fetch vehicle data on component load if we didn't get latest update
+  useEffect(() => {
+    async function fetchLatestVehicles() {
+      try {
+        const response = await axios.get(
+          `${API_URL}/api/vehicles`
+        );
+        setData(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    if (data == null) {
+      fetchLatestVehicles();
+    }
+  }, []);
 
   return (
     <>

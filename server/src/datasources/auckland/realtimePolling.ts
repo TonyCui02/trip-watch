@@ -4,6 +4,7 @@ import axios from "axios";
 import SocketManager from "../../SocketManager";
 import fs from "fs";
 import path from "path"
+import cache from "../../store/cache";
 
 let vehiclePositions: VehiclePosition[] = [];
 const socketInstance = SocketManager.getInstance();
@@ -61,6 +62,8 @@ export async function checkForRealtimeUpdates(): Promise<boolean> {
     for (const entity of entitiesList) {
       processEntity(entity);
     }
+
+    cache.set("vehiclePositions", vehiclePositions); // update in memory cache
 
     socketInstance.emitToRoom(
       "vehiclePositions",
