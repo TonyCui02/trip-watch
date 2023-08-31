@@ -3,7 +3,6 @@ import { MapboxOverlay, MapboxOverlayProps } from "@deck.gl/mapbox/typed";
 import { useState } from "react";
 import Map, { NavigationControl, useControl } from "react-map-gl";
 import { BusLayer } from "../layers/BusLayer";
-import MapImage from "./MapImage";
 
 // Set your mapbox access token here
 const MAPBOX_ACCESS_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
@@ -50,7 +49,6 @@ export default function BaseMap(props: BaseMapProps) {
         reuseMaps
         initialViewState={INITIAL_VIEW_STATE}
       >
-        <MapImage />
         <DeckGLOverlay layers={layers} />
         <NavigationControl />
         {hoverInfo && (

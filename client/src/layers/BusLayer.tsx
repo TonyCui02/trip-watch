@@ -13,8 +13,12 @@ const BUS_IMAGES = [
 
 // determine which bus icon to get depending on orientation
 const getBusImage = (bearingStr: string) => {
+  if (bearingStr == undefined || bearingStr == null) {
+    console.log("no bearing found");
+    return BUS_IMAGES[0]; // return default as fallback
+  }
   const bearing = parseInt(bearingStr);
-  const fixedBearing = (bearing + 67) % 360; // need to fix bearing because of image rotation
+  const fixedBearing = (bearing + 20) % 360; // need to fix bearing because of image rotation
   const index = Math.floor(fixedBearing / 45) % BUS_IMAGES.length;
   return BUS_IMAGES[index];
 };
@@ -32,7 +36,7 @@ export const BusLayer = (
     onClick: (info) => setHoverInfo(info),
     getColor: (d) => [Math.sqrt(d.exits), 140, 0],
     getIcon: (d) => ({
-      url: getBusImage(d?.position?.bearing || "0"),
+      url: getBusImage(d?.position?.bearing),
       width: 64,
       height: 64,
       anchorY: 28,
