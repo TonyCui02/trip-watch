@@ -86,13 +86,13 @@ export default function MapPage() {
       }}
     >
       <div className="w-screen h-screen">
-        <Collapsible>
+        {/* <Collapsible>
           <div className="flex flex-col items-center mb-2">
             <button className="bg-purple-200 hover:bg-purple-300 text-neutral-800 font-bold py-2 px-4 rounded mr-2 text-sm">
               Send Message
             </button>
           </div>
-        </Collapsible>
+        </Collapsible> */}
         <Search routes={routes!} setSelectedRoutes={setSelectedRoutes} />
         <BaseMap vehicleUpdates={filter(vehicleUpdates)!} />
       </div>
