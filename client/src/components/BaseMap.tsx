@@ -1,13 +1,16 @@
 import { MapboxOverlay, MapboxOverlayProps } from "@deck.gl/mapbox/typed";
 
-import { useState } from "react";
-import Map, { NavigationControl, useControl } from "react-map-gl";
-import { BusLayer } from "../layers/BusLayer";
+import { useEffect, useRef, useState } from "react";
+import Map, {
+  GeolocateControl,
+  NavigationControl,
+  useControl,
+} from "react-map-gl";
+import { VehicleLayer } from "../layers/VehicleLayer";
 
 // Set your mapbox access token here
 const MAPBOX_ACCESS_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
-const MAP_STYLE =
-  "https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json";
+const MAP_STYLE = "mapbox://styles/mapbox/streets-v12";
 
 // Viewport settings
 const INITIAL_VIEW_STATE = {
@@ -25,9 +28,7 @@ const INITIAL_INFO = {
 };
 
 interface BaseMapProps {
-  busLocationsData?: [];
-  trainLocationsData?: [];
-  ferryLocationsData?: [];
+  vehicleUpdates?: any[] | null;
 }
 
 export function DeckGLOverlay(props: MapboxOverlayProps) {
@@ -38,8 +39,14 @@ export function DeckGLOverlay(props: MapboxOverlayProps) {
 
 export default function BaseMap(props: BaseMapProps) {
   const [hoverInfo, setHoverInfo] = useState(INITIAL_INFO as any);
-  const busLayer = BusLayer(props.busLocationsData, setHoverInfo);
-  const layers = [busLayer];
+  const vehicleLayer = VehicleLayer(props.vehicleUpdates!, setHoverInfo);
+  const layers = [vehicleLayer];
+  const geoControlRef = useRef<mapboxgl.GeolocateControl>();
+
+  useEffect(() => {
+    // Activate as soon as the control is loaded
+    geoControlRef.current?.trigger();
+  }, [geoControlRef.current]);
 
   return (
     <div className="w-full h-screen">
@@ -50,7 +57,8 @@ export default function BaseMap(props: BaseMapProps) {
         initialViewState={INITIAL_VIEW_STATE}
       >
         <DeckGLOverlay layers={layers} />
-        <NavigationControl />
+        <NavigationControl position="bottom-right" />
+        <GeolocateControl position="bottom-right" showUserLocation={true} />
         {hoverInfo && (
           <div
             style={{

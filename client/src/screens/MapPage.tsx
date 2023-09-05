@@ -1,15 +1,27 @@
-import { useEffect, useState } from "react";
+import axios from "axios";
+import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import BaseMap from "../components/BaseMap";
 import Collapsible from "../components/Collapsible";
-import axios from "axios"
+import Search from "../components/Search";
+import { MapPageContext } from "../contexts/MapContextProvider";
+import { Route } from "../types/Route";
 
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL;
 
 const socket = io(API_URL);
 
 export default function MapPage() {
-  const [data, setData] = useState(null);
+  const [vehicleUpdates, setVehicleUpdates] = useState<any>(null);
+  const [routes, setRoutes] = useState<Route[] | null>(null);
+  const [selectedRoutes, _setSelectedRoutes] = useState<Route[] | null>([]);
+
+  const selectedRoutesRef = useRef(selectedRoutes);
+
+  const setSelectedRoutes = (data: Route[] | null) => {
+    selectedRoutesRef.current = data;
+    _setSelectedRoutes(data);
+  };
 
   // subscribe to vehicle updates room on component mount
   useEffect(() => {
@@ -19,8 +31,7 @@ export default function MapPage() {
   // update data state whenever we get response from websocket
   useEffect(() => {
     socket.on("vehicleUpdates", (data) => {
-      console.log(data);
-      setData(data);
+      setVehicleUpdates(data);
     });
   }, [socket]);
 
@@ -28,29 +39,63 @@ export default function MapPage() {
   useEffect(() => {
     async function fetchLatestVehicles() {
       try {
-        const response = await axios.get(
-          `${API_URL}/api/vehicles`
-        );
-        setData(response.data);
+        const response = await axios.get(`${API_URL}/api/vehicles`);
+        setVehicleUpdates(response.data);
       } catch (error) {
         console.log(error);
       }
     }
-    if (data == null) {
+    if (vehicleUpdates == null) {
       fetchLatestVehicles();
     }
   }, []);
 
+  // fetch route info
+  useEffect(() => {
+    async function fetchRoutes() {
+      try {
+        const response = await axios.get(`${API_URL}/api/routes`);
+        setRoutes(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    fetchRoutes();
+  }, []);
+
+  const filter = (updates: any[] | null) => {
+    if (selectedRoutes?.length == 0) {
+      return updates;
+    }
+
+    const filteredVehicleUpdates = updates?.filter(
+      (update) =>
+        selectedRoutesRef.current?.find(
+          (route) => route.routeId == update?.trip?.route_id
+        ) != undefined
+    );
+
+    return filteredVehicleUpdates;
+  };
+
   return (
-    <>
-      <Collapsible>
-        <div className="flex flex-col items-center mb-2">
-          <button className="bg-purple-200 hover:bg-purple-300 text-neutral-800 font-bold py-2 px-4 rounded mr-2 text-sm">
-            Send Message
-          </button>
-        </div>
-      </Collapsible>
-      <BaseMap busLocationsData={data || undefined} />
-    </>
+    <MapPageContext.Provider
+      value={{
+        vehicleUpdates: vehicleUpdates,
+        routes: routes,
+      }}
+    >
+      <div className="w-screen h-screen">
+        <Collapsible>
+          <div className="flex flex-col items-center mb-2">
+            <button className="bg-purple-200 hover:bg-purple-300 text-neutral-800 font-bold py-2 px-4 rounded mr-2 text-sm">
+              Send Message
+            </button>
+          </div>
+        </Collapsible>
+        <Search routes={routes!} setSelectedRoutes={setSelectedRoutes} />
+        <BaseMap vehicleUpdates={filter(vehicleUpdates)!} />
+      </div>
+    </MapPageContext.Provider>
   );
 }
