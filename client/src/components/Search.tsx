@@ -1,13 +1,12 @@
-import { faTrain, faBus, faFerry } from "@fortawesome/free-solid-svg-icons";
+import { faBus, faFerry, faTrain } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Select, { components, MultiValue } from "react-select";
+import Select, { components } from "react-select";
 import { Route, RouteType } from "../types/Route";
-import { useEffect, useState } from "react";
 
 const { Option } = components;
 
-const getIcon = (routeType: number) => {
-  switch (routeType) {
+const getIcon = (route: Route) => {
+  switch (route.routeType) {
     case RouteType.BUS:
       return <FontAwesomeIcon icon={faBus} />;
     case RouteType.TRAIN:
@@ -21,7 +20,7 @@ const getIcon = (routeType: number) => {
 
 const IconOption = (props: any) => (
   <Option {...props}>
-    <span className="mr-2">{getIcon(props.data.routeType)}</span>
+    <span className="mr-2">{getIcon(props.data)}</span>
     {props.data.routeShortName}
   </Option>
 );

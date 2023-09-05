@@ -11,4 +11,10 @@ router.use("/gtfs", gtfsRoutes);
 import routeRoutes from "./routes";
 router.use("/routes", routeRoutes);
 
+import tripRoutes from "./trips";
+router.use("/trips", tripRoutes);
+
+import shapeRoutes from "./shapes";
+router.use("/shapes", shapeRoutes);
+
 export default router;
