@@ -1,4 +1,5 @@
 import { IconLayer } from "@deck.gl/layers/typed";
+import { VehiclePosition } from "../types/gtfs-realtime";
 
 const BUS_IMAGES = [
   "buses/0.png",
@@ -11,9 +12,20 @@ const BUS_IMAGES = [
   "buses/7.png",
 ];
 
-// determine which bus icon to get depending on orientation
-const getBusImage = (bearingStr: string) => {
-  if (bearingStr == undefined || bearingStr == null) {
+const FERRY_IMAGES = [
+  "ferry/0.png",
+  "ferry/1.png",
+  "ferry/2.png",
+  "ferry/3.png",
+  "ferry/4.png",
+  "ferry/5.png",
+  "ferry/6.png",
+  "ferry/7.png",
+];
+
+// determine which vehicle icon to get depending on orientation
+const getVehicleImage = (data: VehiclePosition) => {
+  if (data.position!.bearing == undefined) {
     console.log("no bearing found");
     return BUS_IMAGES[0]; // return default as fallback
   }
@@ -36,7 +48,7 @@ export const VehicleLayer = (
     onClick: (info) => setHoverInfo(info),
     getColor: (d) => [Math.sqrt(d.exits), 140, 0],
     getIcon: (d) => ({
-      url: getBusImage(d?.position?.bearing),
+      url: getBusImage(d!),
       width: 64,
       height: 64,
       anchorY: 40,

@@ -9,6 +9,14 @@ router.get("/", async (req, res) => {
   return res.json(routes);
 });
 
+// get single route id
+router.get("/:id", async (req, res) => {
+  const routeId = req.params.id;
+
+  const route = await Route.find({routeId: routeId});
+  return res.json(route);
+});
+
 router.get("/:routeIds/trips", async (req, res) => {
   const routeIds = req.params.routeIds.split(",");
 

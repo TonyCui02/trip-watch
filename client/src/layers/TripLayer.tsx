@@ -5,7 +5,6 @@ export const TripLayer = (
   data: GeoJSON,
   setHoverInfo: (info: object) => void
 ) => {
-  console.log(data);
   const layer = new GeoJsonLayer({
     id: "geojson-layer",
     data,
@@ -17,7 +16,7 @@ export const TripLayer = (
       const hex = f.properties!.color;
       // convert to RGB
       return hex
-        ? hex.match(/[0-9a-f]{2}/g).map((x) => parseInt(x, 16))
+        ? hex.match(/[0-9a-f]{2}/g).map((x : any) => parseInt(x, 16))
         : [0, 0, 0];
     },
     getFillColor: [160, 160, 180, 200],

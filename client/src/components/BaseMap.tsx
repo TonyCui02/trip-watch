@@ -1,6 +1,7 @@
 import { MapboxOverlay, MapboxOverlayProps } from "@deck.gl/mapbox/typed";
 
 import axios from "axios";
+import { GeoJSON } from "geojson";
 import { useContext, useEffect, useState } from "react";
 import Map, {
   GeolocateControl,
@@ -8,11 +9,10 @@ import Map, {
   useControl,
 } from "react-map-gl";
 import { MapPageContext } from "../contexts/MapContextProvider";
-import { VehicleLayer } from "../layers/VehicleLayer";
 import { TripLayer } from "../layers/TripLayer";
+import { VehicleLayer } from "../layers/VehicleLayer";
 import { Shape } from "../types/Shape";
 import { Trip } from "../types/Trip";
-import { GeoJSON } from "geojson";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -53,8 +53,6 @@ export default function BaseMap(props: BaseMapProps) {
   const vehicleLayer = VehicleLayer(props.vehicleUpdates!, setHoverInfo);
   const tripLayer = TripLayer(shapesData!, setHoverInfo);
   const layers = [tripLayer, vehicleLayer];
-
-  console.log(selectedRoutes)
 
   const createShapesGeojson = (shapes: Shape[], shapeIds: string[]) => {
     let geojson: GeoJSON = {

@@ -1,46 +1,43 @@
 import express from "express";
 
-import Route from "../../db/route";
-import Trip from "../../db/trip";
-import Stop from "../../db/stop";
-import StopTime from "../../db/stopTime";
-import Shape from "../../db/shape";
 import csv from "csvtojson";
 import path from "path";
-import fs from "fs";
-import Logger from "../../utils/logger";
-import mongoose from "mongoose";
+import Route from "../../db/route";
+import Shape from "../../db/shape";
+import Stop from "../../db/stop";
+import StopTime from "../../db/stopTime";
+import Trip from "../../db/trip";
 import { parseAtTime } from "../../utils/time";
 
 const router = express.Router();
 
-const gtfsFilepath = "../../gtfsAucklandTransport/";
+// const gtfsFilepath = "../../gtfsAucklandTransport/";
 
 // load all static gtfs data into the DB
-router.post("/", async (req, res) => {
-  const trips = await convertCsvToJson(gtfsFilepath + "trips.txt");
-  await uploadTrips(trips);
-  Logger.info("trips upload success!");
+// router.post("/", async (req, res) => {
+//   const trips = await convertCsvToJson(gtfsFilepath + "trips.txt");
+//   await uploadTrips(trips);
+//   Logger.info("trips upload success!");
 
-  const stopTimes = await convertCsvToJson(gtfsFilepath + "stop_times.txt");
-  await uploadStopTimes(stopTimes);
-  Logger.info("stopTimes upload success!");
+//   const stopTimes = await convertCsvToJson(gtfsFilepath + "stop_times.txt");
+//   await uploadStopTimes(stopTimes);
+//   Logger.info("stopTimes upload success!");
 
-  const routes = await convertCsvToJson(gtfsFilepath + "routes.txt");
-  await uploadRoutes(routes);
-  Logger.info("routes upload success!");
+//   const routes = await convertCsvToJson(gtfsFilepath + "routes.txt");
+//   await uploadRoutes(routes);
+//   Logger.info("routes upload success!");
 
-  const shapes = await convertCsvToJson(gtfsFilepath + "shapes.txt");
-  fs.writeFileSync('shapes.json', JSON.stringify(shapes));
-  await uploadShapes(shapes);
-  Logger.info("shapes upload success!");
+//   const shapes = await convertCsvToJson(gtfsFilepath + "shapes.txt");
+//   fs.writeFileSync('shapes.json', JSON.stringify(shapes));
+//   await uploadShapes(shapes);
+//   Logger.info("shapes upload success!");
 
-  const stops = await convertCsvToJson(gtfsFilepath + "stops.txt");
-  await uploadStops(stops);
-  Logger.info("stops upload success!");
+//   const stops = await convertCsvToJson(gtfsFilepath + "stops.txt");
+//   await uploadStops(stops);
+//   Logger.info("stops upload success!");
 
-  return res.json(shapes);
-});
+//   return res.json(shapes);
+// });
 
 async function convertCsvToJson(csvFilePath: string) {
   try {
