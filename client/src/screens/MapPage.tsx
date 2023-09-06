@@ -2,7 +2,6 @@ import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import BaseMap from "../components/BaseMap";
-import Collapsible from "../components/Collapsible";
 import Search from "../components/Search";
 import { MapPageContext } from "../contexts/MapContextProvider";
 import { Route } from "../types/Route";
@@ -83,6 +82,7 @@ export default function MapPage() {
       value={{
         vehicleUpdates: vehicleUpdates,
         routes: routes,
+        selectedRoutes: selectedRoutes,
       }}
     >
       <div className="w-screen h-screen">

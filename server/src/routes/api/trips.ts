@@ -3,9 +3,11 @@ import Trip from "../../db/trip";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  // Get all trips
-  const trips = await Trip.find({});
+// Get trips given a list of tripIds
+router.get("/:tripIds", async (req, res) => {
+  const tripIds = req.params.tripIds.split(",");
+
+  const trips = await Trip.find({ tripId: { $in: tripIds } });
 
   res.json(trips);
 });

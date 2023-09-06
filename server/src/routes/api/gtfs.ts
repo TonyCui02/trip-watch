@@ -31,6 +31,7 @@ router.post("/", async (req, res) => {
   Logger.info("routes upload success!");
 
   const shapes = await convertCsvToJson(gtfsFilepath + "shapes.txt");
+  fs.writeFileSync('shapes.json', JSON.stringify(shapes));
   await uploadShapes(shapes);
   Logger.info("shapes upload success!");
 
@@ -38,7 +39,7 @@ router.post("/", async (req, res) => {
   await uploadStops(stops);
   Logger.info("stops upload success!");
 
-  return res.sendStatus(201);
+  return res.json(shapes);
 });
 
 async function convertCsvToJson(csvFilePath: string) {
