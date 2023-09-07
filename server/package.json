@@ -13,6 +13,7 @@
   "author": "Tony Cui",
   "license": "ISC",
   "dependencies": {
+    "@types/mongoose": "^5.11.97",
     "axios": "^1.5.0",
     "cors": "^2.8.5",
     "csvtojson": "^2.0.10",

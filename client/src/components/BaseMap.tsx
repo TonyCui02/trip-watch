@@ -148,8 +148,11 @@ export default function BaseMap(props: BaseMapProps) {
               left: hoverInfo.x,
               top: hoverInfo.y,
             }}
+
+            className="bg-white"
           >
-            {hoverInfo?.object?.trip_update?.trip?.route_id}
+            <p>{hoverInfo?.object?.trip_update?.trip?.route_id}</p>
+            <p>{hoverInfo?.object?.vehicle?.position?.bearing}</p>
           </div>
         )}
       </Map>

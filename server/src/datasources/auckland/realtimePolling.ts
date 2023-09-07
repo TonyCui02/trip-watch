@@ -1,11 +1,13 @@
 import axios from "axios";
 import fs from "fs";
-import { FeedEntity, VehiclePosition } from "gtfs-realtime";
+import { VehicleFeedEntity } from "VehicleTripUpdate";
 import path from "path";
 import SocketManager from "../../SocketManager";
 import cache from "../../store/cache";
 import Logger from "../../utils/logger";
-const vehicleTripUpdatesMap = new Map<string, FeedEntity>(); // key is vehicle id, value is an object containing a trip update and a vehicle update
+import Route from "../../db/route";
+import { IVehicleRoute } from "IRoute";
+const vehicleTripUpdatesMap = new Map<string, VehicleFeedEntity>(); // key is vehicle id, value is an object containing a trip update and a vehicle update
 const socketInstance = SocketManager.getInstance();
 
 /**
@@ -59,13 +61,13 @@ export async function checkForRealtimeUpdates(): Promise<boolean> {
     }
 
     for (const entity of entitiesList) {
-      processEntity(entity);
+      await processEntity(entity);
     }
 
     const vehicleTripUpdates = Array.from(vehicleTripUpdatesMap.values());
 
     const filteredUpdates = vehicleTripUpdates.filter(
-      (update: FeedEntity) =>
+      (update: VehicleFeedEntity) =>
         update.vehicle != null && update.trip_update != null
     );
 
@@ -83,7 +85,7 @@ export async function checkForRealtimeUpdates(): Promise<boolean> {
   }
 }
 
-const processEntity = (data: FeedEntity): void => {
+const processEntity = async (data: VehicleFeedEntity): Promise<void> => {
   const { id: _id, vehicle, alert: _alert, trip_update } = data;
 
   // only process entities where trip is not null for vehicle
@@ -105,6 +107,10 @@ const processEntity = (data: FeedEntity): void => {
   if (vehicle != null) {
     vehicleTripUpdatesMap.get(vehicleId)["vehicle"] = vehicle;
   } else if (trip_update != null) {
+    const route: IVehicleRoute = await Route.findOne({
+      routeId: trip_update?.trip?.route_id,
+    });
+    vehicleTripUpdatesMap.get(vehicleId)["route"] = route;
     vehicleTripUpdatesMap.get(vehicleId)["trip_update"] = trip_update;
   }
   // TODO: process trips and alerts
