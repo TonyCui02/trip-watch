@@ -1,11 +1,12 @@
 import { faBus, faFerry, faTrain } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Select, { components } from "react-select";
-import { Route, RouteType } from "../types/Route";
+import { IVehicleRoute } from "../types/IVehicleRoute";
+import { RouteType } from "../types/RouteType";
 
 const { Option } = components;
 
-const getIcon = (route: Route) => {
+const getIcon = (route: IVehicleRoute) => {
   switch (route.routeType) {
     case RouteType.BUS:
       return <FontAwesomeIcon icon={faBus} />;
@@ -26,8 +27,8 @@ const IconOption = (props: any) => (
 );
 
 interface SearchProps {
-  routes: Route[];
-  setSelectedRoutes: (routes: Route[]) => void;
+  routes: IVehicleRoute[];
+  setSelectedRoutes: (routes: IVehicleRoute[]) => void;
 }
 
 const Search = (props: SearchProps) => {

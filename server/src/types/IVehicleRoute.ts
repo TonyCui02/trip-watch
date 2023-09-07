@@ -1,4 +1,4 @@
-export interface Route {
+export interface IVehicleRoute {
   routeId: string;
   agencyId: string;
   routeShortName: string;
@@ -10,10 +10,4 @@ export interface Route {
   routeTextColor?: string;
   routeSortOrder?: number;
   contractId?: number;
-}
-
-export enum RouteType {
-  TRAIN = 2,
-  BUS = 3,
-  FERRY = 4,
 }

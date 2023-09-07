@@ -1,4 +1,4 @@
-import { Route } from "./Route";
+import { IVehicleRoute } from "./IVehicleRoute";
 import { Trip } from "./Trip";
 import {
   Position,
@@ -16,5 +16,5 @@ export interface VehicleUpdate {
   nextStop: string;
   actualArrivalTime: number;
   scheduledArrivalTime: number;
-  route: Route;
+  route: IVehicleRoute;
 }

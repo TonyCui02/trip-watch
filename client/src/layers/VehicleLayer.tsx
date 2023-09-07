@@ -1,5 +1,7 @@
 import { IconLayer } from "@deck.gl/layers/typed";
-import { FeedEntity, VehiclePosition } from "../types/gtfs-realtime";
+import { RouteType } from "../types/RouteType";
+import { VehicleFeedEntity } from "../types/VehicleFeedEntity";
+import { FeedEntity } from "../types/gtfs-realtime";
 
 const anglesToIdx = {
   0: 0,
@@ -35,15 +37,27 @@ const FERRY_IMAGES = [
 ];
 
 // determine which bus icon to get depending on orientation
-const getBusImage = (bearing?: number) => {
-  console.log(bearing);
+const getBusImage = (routeType?: number, bearing?: number) => {
+  let image_arr = [];
+  switch (routeType) {
+    case RouteType.BUS:
+      image_arr = BUS_IMAGES;
+      break;
+    case RouteType.FERRY:
+      image_arr = FERRY_IMAGES;
+      break;
+    default:
+      image_arr = BUS_IMAGES;
+      break;
+  }
+
   if (bearing == undefined || bearing == null) {
     console.log("no bearing found");
-    return BUS_IMAGES[0]; // return default as fallback
+    return image_arr[2]; // return default as fallback
   }
   const fixedBearing = bearing % 360; // need to fix bearing because of image rotation
-  const index = Math.round(fixedBearing / 45) % BUS_IMAGES.length;
-  return BUS_IMAGES[index];
+  const index = Math.round(fixedBearing / 45) % image_arr.length;
+  return image_arr[index];
 };
 
 export const VehicleLayer = (
@@ -61,8 +75,8 @@ export const VehicleLayer = (
     onHover: (info) => setHoverInfo(info),
     onClick: (info) => setHoverInfo(info),
     // getColor: (d) => [Math.sqrt(d.exits), 140, 0],
-    getIcon: (d: FeedEntity) => ({
-      url: getBusImage(d.vehicle?.position?.bearing),
+    getIcon: (d: VehicleFeedEntity) => ({
+      url: getBusImage(d?.route?.routeType, d.vehicle?.position?.bearing),
       width: 64,
       height: 64,
       anchorY: 40,

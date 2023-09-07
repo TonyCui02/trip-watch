@@ -1,4 +1,4 @@
-import { IVehicleRoute } from "IRoute";
+import { IVehicleRoute } from "IVehicleRoute";
 import mongoose, { Model } from "mongoose";
 
 const Schema = mongoose.Schema;

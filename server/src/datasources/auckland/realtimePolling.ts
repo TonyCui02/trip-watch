@@ -1,12 +1,13 @@
 import axios from "axios";
 import fs from "fs";
-import { VehicleFeedEntity } from "VehicleTripUpdate";
+import { VehicleFeedEntity } from "VehicleFeedEntity";
 import path from "path";
 import SocketManager from "../../SocketManager";
 import cache from "../../store/cache";
 import Logger from "../../utils/logger";
 import Route from "../../db/route";
-import { IVehicleRoute } from "IRoute";
+import { IVehicleRoute } from "IVehicleRoute";
+import { RouteType } from "../../types/RouteType";
 const vehicleTripUpdatesMap = new Map<string, VehicleFeedEntity>(); // key is vehicle id, value is an object containing a trip update and a vehicle update
 const socketInstance = SocketManager.getInstance();
 
@@ -68,7 +69,8 @@ export async function checkForRealtimeUpdates(): Promise<boolean> {
 
     const filteredUpdates = vehicleTripUpdates.filter(
       (update: VehicleFeedEntity) =>
-        update.vehicle != null && update.trip_update != null
+        (update.vehicle != null && update.trip_update != null) ||
+        (update?.route?.routeType == RouteType.FERRY && update.vehicle != null) // ferry's don't have trip_update but we want to include them
     );
 
     cache.set("vehiclePositions", filteredUpdates); // update in memory cache
@@ -105,12 +107,12 @@ const processEntity = async (data: VehicleFeedEntity): Promise<void> => {
   }
 
   if (vehicle != null) {
-    vehicleTripUpdatesMap.get(vehicleId)["vehicle"] = vehicle;
-  } else if (trip_update != null) {
     const route: IVehicleRoute = await Route.findOne({
-      routeId: trip_update?.trip?.route_id,
+      routeId: vehicle?.trip?.route_id,
     });
     vehicleTripUpdatesMap.get(vehicleId)["route"] = route;
+    vehicleTripUpdatesMap.get(vehicleId)["vehicle"] = vehicle;
+  } else if (trip_update != null) {
     vehicleTripUpdatesMap.get(vehicleId)["trip_update"] = trip_update;
   }
   // TODO: process trips and alerts

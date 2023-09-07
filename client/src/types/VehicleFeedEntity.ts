@@ -1,5 +1,5 @@
-import { IVehicleRoute } from "IRoute";
-import { Alert, TripUpdate, VehiclePosition } from "gtfs-realtime";
+import { IVehicleRoute } from "./IVehicleRoute";
+import { Alert, TripUpdate, VehiclePosition } from "./gtfs-realtime";
 
 export interface VehicleFeedEntity {
   alert?: Alert;
