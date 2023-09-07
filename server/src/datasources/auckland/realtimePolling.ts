@@ -1,12 +1,11 @@
-import { FeedEntity, VehiclePosition } from "gtfs-realtime";
-import Logger from "../../utils/logger";
 import axios from "axios";
-import SocketManager from "../../SocketManager";
 import fs from "fs";
-import path from "path"
+import { FeedEntity, VehiclePosition } from "gtfs-realtime";
+import path from "path";
+import SocketManager from "../../SocketManager";
 import cache from "../../store/cache";
-
-let vehiclePositions: VehiclePosition[] = [];
+import Logger from "../../utils/logger";
+const vehicleTripUpdatesMap = new Map<string, FeedEntity>(); // key is vehicle id, value is an object containing a trip update and a vehicle update
 const socketInstance = SocketManager.getInstance();
 
 /**
@@ -32,7 +31,9 @@ async function fetchFromAT(url: string) {
 }
 
 const readMockData = async () => {
-  const data = JSON.parse(fs.readFileSync(path.resolve(__dirname, "./mock.json"), "utf-8"));
+  const data = JSON.parse(
+    fs.readFileSync(path.resolve(__dirname, "./mock.json"), "utf-8")
+  );
   return data.response.entity;
 };
 
@@ -40,7 +41,7 @@ export async function checkForRealtimeUpdates(): Promise<boolean> {
   try {
     // only poll if there are actually connected clients
     const numClients = socketInstance.getConnectedClientsCount();
-    Logger.info(`There is currently ${numClients} connected clients`)
+    Logger.info(`There is currently ${numClients} connected clients`);
     if (numClients == 0) {
       Logger.info(
         "💻 No connected clients, cancelling request to avoid wasting api credits"
@@ -57,18 +58,23 @@ export async function checkForRealtimeUpdates(): Promise<boolean> {
       return false;
     }
 
-    vehiclePositions = []; // reset vehicle positions list
-
     for (const entity of entitiesList) {
       processEntity(entity);
     }
 
-    cache.set("vehiclePositions", vehiclePositions); // update in memory cache
+    const vehicleTripUpdates = Array.from(vehicleTripUpdatesMap.values());
+
+    const filteredUpdates = vehicleTripUpdates.filter(
+      (update: FeedEntity) =>
+        update.vehicle != null && update.trip_update != null
+    );
+
+    cache.set("vehiclePositions", filteredUpdates); // update in memory cache
 
     socketInstance.emitToRoom(
       "vehiclePositions",
       "vehicleUpdates",
-      vehiclePositions
+      filteredUpdates
     );
     Logger.info("Emitted updated vehicle locations");
     return true;
@@ -78,16 +84,28 @@ export async function checkForRealtimeUpdates(): Promise<boolean> {
 }
 
 const processEntity = (data: FeedEntity): void => {
-  const { id: _id, vehicle, alert: _alert } = data;
+  const { id: _id, vehicle, alert: _alert, trip_update } = data;
+
+  // only process entities where trip is not null for vehicle
+
+  let vehicleId;
 
   if (vehicle != null) {
-    addVehicleUpdate(vehicle);
+    vehicleId = vehicle?.vehicle?.id;
+  } else if (trip_update != null) {
+    vehicleId = trip_update?.vehicle?.id;
+  }
+
+  if (vehicleId == null) return;
+
+  if (!vehicleTripUpdatesMap.has(vehicleId)) {
+    vehicleTripUpdatesMap.set(vehicleId, { id: vehicleId });
+  }
+
+  if (vehicle != null) {
+    vehicleTripUpdatesMap.get(vehicleId)["vehicle"] = vehicle;
+  } else if (trip_update != null) {
+    vehicleTripUpdatesMap.get(vehicleId)["trip_update"] = trip_update;
   }
   // TODO: process trips and alerts
-};
-
-const addVehicleUpdate = (vehiclePos: VehiclePosition) => {
-  // only pass through vehicles currently in an active trip to avoid rendering stationary vehicles
-  if (!vehiclePos.trip) return;
-  vehiclePositions.push(vehiclePos);
 };

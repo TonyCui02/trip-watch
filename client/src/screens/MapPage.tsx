@@ -5,16 +5,18 @@ import BaseMap from "../components/BaseMap";
 import Search from "../components/Search";
 import { MapPageContext } from "../contexts/MapContextProvider";
 import { Route } from "../types/Route";
+import { FeedEntity } from "../types/gtfs-realtime";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const socket = io(API_URL);
 
 export default function MapPage() {
-  const [vehicleUpdates, setVehicleUpdates] = useState<any>(null);
+  const [vehicleUpdates, setVehicleUpdates] = useState<FeedEntity[]>([]);
   const [routes, setRoutes] = useState<Route[] | null>(null);
   const [selectedRoutes, _setSelectedRoutes] = useState<Route[] | null>([]);
-
+  
+  console.log(vehicleUpdates)
   const selectedRoutesRef = useRef(selectedRoutes);
 
   const setSelectedRoutes = (data: Route[] | null) => {
@@ -62,7 +64,7 @@ export default function MapPage() {
     fetchRoutes();
   }, []);
 
-  const filter = (updates: any[] | null) => {
+  const filter = (updates: FeedEntity[] | null) => {
     if (selectedRoutes?.length == 0) {
       return updates;
     }
@@ -70,7 +72,7 @@ export default function MapPage() {
     const filteredVehicleUpdates = updates?.filter(
       (update) =>
         selectedRoutesRef.current?.find(
-          (route) => route.routeId == update?.trip?.route_id
+          (route) => route.routeId == update?.trip_update?.trip?.route_id
         ) != undefined
     );
 

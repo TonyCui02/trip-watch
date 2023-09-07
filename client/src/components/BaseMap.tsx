@@ -13,6 +13,7 @@ import { TripLayer } from "../layers/TripLayer";
 import { VehicleLayer } from "../layers/VehicleLayer";
 import { Shape } from "../types/Shape";
 import { Trip } from "../types/Trip";
+import { FeedEntity } from "../types/gtfs-realtime";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -36,7 +37,7 @@ const INITIAL_INFO = {
 };
 
 interface BaseMapProps {
-  vehicleUpdates?: any[] | null;
+  vehicleUpdates?: FeedEntity[] | null;
 }
 
 export function DeckGLOverlay(props: MapboxOverlayProps) {
@@ -98,7 +99,7 @@ export default function BaseMap(props: BaseMapProps) {
 
         const tripIds = new Set(
           props.vehicleUpdates?.map(
-            (vehiclePosition) => vehiclePosition.trip.trip_id
+            (vehiclePosition) => vehiclePosition.trip_update?.trip.trip_id
           )
         );
 
@@ -148,7 +149,7 @@ export default function BaseMap(props: BaseMapProps) {
               top: hoverInfo.y,
             }}
           >
-            {hoverInfo?.object?.trip?.route_id}
+            {hoverInfo?.object?.trip_update?.trip?.route_id}
           </div>
         )}
       </Map>
