@@ -10,10 +10,14 @@ import Map, {
 } from "react-map-gl";
 import { MapPageContext } from "../contexts/MapContextProvider";
 import { TripLayer } from "../layers/TripLayer";
-import { VehicleLayer } from "../layers/VehicleLayer";
+import BusLayer from "../layers/BusLayer";
 import { Shape } from "../types/Shape";
 import { Trip } from "../types/Trip";
 import { FeedEntity } from "../types/gtfs-realtime";
+import { RouteType } from "../types/RouteType";
+import { VehicleFeedEntity } from "../types/VehicleFeedEntity";
+import FerryLayer from "../layers/FerryLayer";
+import TrainLayer from "../layers/TrainLayer";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -37,7 +41,7 @@ const INITIAL_INFO = {
 };
 
 interface BaseMapProps {
-  vehicleUpdates?: FeedEntity[] | null;
+  vehicleUpdates?: VehicleFeedEntity[];
 }
 
 export function DeckGLOverlay(props: MapboxOverlayProps) {
@@ -50,10 +54,6 @@ export default function BaseMap(props: BaseMapProps) {
   const [hoverInfo, setHoverInfo] = useState(INITIAL_INFO as any);
   const [shapesData, setShapesData] = useState<GeoJSON | null>(null);
   const { selectedRoutes } = useContext(MapPageContext);
-
-  const vehicleLayer = VehicleLayer(props.vehicleUpdates!, setHoverInfo);
-  const tripLayer = TripLayer(shapesData!, setHoverInfo);
-  const layers = [tripLayer, vehicleLayer];
 
   const createShapesGeojson = (shapes: Shape[], shapeIds: string[]) => {
     let geojson: GeoJSON = {
@@ -123,6 +123,19 @@ export default function BaseMap(props: BaseMapProps) {
     fetchShapesForTrips();
   }, [props.vehicleUpdates, selectedRoutes]);
 
+  const getVehicleFromRouteType = (routeType: RouteType) => {
+    const buses = props.vehicleUpdates?.filter(
+      (update) => update?.route?.routeType == routeType
+    );
+    return buses;
+  };
+
+  const busLayer = BusLayer(getVehicleFromRouteType(RouteType.BUS), setHoverInfo);
+  const ferryLayer = FerryLayer(getVehicleFromRouteType(RouteType.FERRY), setHoverInfo);
+  const trainLayer = TrainLayer(getVehicleFromRouteType(RouteType.TRAIN), setHoverInfo);
+  const tripLayer = TripLayer(shapesData!, setHoverInfo);
+  const layers = [tripLayer, busLayer, trainLayer, ferryLayer];
+
   return (
     <div className="w-full h-screen">
       <Map
@@ -148,11 +161,10 @@ export default function BaseMap(props: BaseMapProps) {
               left: hoverInfo.x,
               top: hoverInfo.y,
             }}
-
             className="bg-white"
           >
-            <p>{hoverInfo?.object?.trip_update?.trip?.route_id}</p>
-            <p>{hoverInfo?.object?.vehicle?.position?.bearing}</p>
+            <p>{JSON.stringify(hoverInfo?.object, null, 2)}</p>
+            {/* <p>{hoverInfo?.object?.vehicle?.position?.bearing}</p> */}
           </div>
         )}
       </Map>

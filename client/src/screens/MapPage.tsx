@@ -15,8 +15,7 @@ export default function MapPage() {
   const [vehicleUpdates, setVehicleUpdates] = useState<FeedEntity[]>([]);
   const [routes, setRoutes] = useState<Route[] | null>(null);
   const [selectedRoutes, _setSelectedRoutes] = useState<Route[] | null>([]);
-  
-  console.log(vehicleUpdates)
+
   const selectedRoutesRef = useRef(selectedRoutes);
 
   const setSelectedRoutes = (data: Route[] | null) => {

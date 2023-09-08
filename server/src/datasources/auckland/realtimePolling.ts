@@ -70,7 +70,7 @@ export async function checkForRealtimeUpdates(): Promise<boolean> {
     const filteredUpdates = vehicleTripUpdates.filter(
       (update: VehicleFeedEntity) =>
         (update.vehicle != null && update.trip_update != null) ||
-        (update?.route?.routeType == RouteType.FERRY && update.vehicle != null) // ferry's don't have trip_update but we want to include them
+        (update?.route?.routeType == RouteType.FERRY) // ferry's don't have trip_update but we want to include them
     );
 
     cache.set("vehiclePositions", filteredUpdates); // update in memory cache
